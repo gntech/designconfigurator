@@ -1,0 +1,14 @@
+project: "Coffe table"
+project_nr: "103"
+rev: "A"
+length: 2000
+width: 600
+height: 500
+height_1: 340
+height_2: 140
+t_glass: 8
+t_tabletop: 18
+t_leg: 36
+cx: 215
+hole_dia_tabletop: 9
+hole_dia_leg: 8
