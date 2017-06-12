@@ -1,14 +1,19 @@
 project: "Coffe table"
-project_nr: "103"
-rev: "A"
-length: 2000
-width: 600
-height: 500
+assy: {nr: "103001-801", name: "Assy", rev: "A"}
+tabletop: {nr: "103001-001", name: "Tabletop", rev: "A"}
+leg: {nr: "103002-001", name: "Leg", rev: "A"}
+glasstop: {nr: "103003-001", name: "Glasstop", rev: "A"}
+
+length: 1000
+width: 700
+height: 900
 height_1: 340
 height_2: 140
 t_glass: 8
 t_tabletop: 18
 t_leg: 36
-cx: 215
+insertion_width: 50
+insertion_length: 3
+cx: 205
 hole_dia_tabletop: 9
 hole_dia_leg: 8

@@ -15,10 +15,10 @@ def glasstop(d):
 	return m
 
 def tabletop(d):
-	r3edge = 120
+	r3edge = 100
 	deltax = 35
 	deltay = 35
-	delta3 = 35
+	delta3 = 30
 	x2 = (d["length"] - 140) / 2.0
 	y2 = (d["width"] - 140) / 2.0
 	x0 = x2 - math.sqrt((r3edge**2)/2)
@@ -47,32 +47,38 @@ def tabletop(d):
 
 	hole_points = [ Base.Vector( hx,  hy, 0),
 					Base.Vector(-hx,  hy, 0),
-					Base.Vector( hx, -hy, 0),
-					Base.Vector(-hx, -hy, 0)]
+					Base.Vector(-hx, -hy, 0),
+					Base.Vector( hx, -hy, 0)]
 
+	a = 45
 	for p in hole_points:
 		hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["t_tabletop"], p, Base.Vector(0, 0, 1), 360)
-		m = m.cut(hole)
+		insert = Part.makeBox(d["t_leg"], d["insertion_width"], d["insertion_length"])
+		insert = dc.model.fillet_edges_by_length(insert, 5, d["insertion_length"])
+		insert.translate(Base.Vector(-d["t_leg"]/2, -d["insertion_width"]/2, 0))
+		insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -a)
+		insert.translate(p)
+		m = m.cut(hole).cut(insert)
+		a = a + 90
 
 	m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
 	return m
 
 def leg(d):
-	insertion_length = 3
 	corner_protection = 15
 
-	x0 = d["cx"] + 25 + corner_protection
-	x1 = d["cx"] - 25 + corner_protection
+	x0 = d["cx"] + d["insertion_width"]/2 + corner_protection
+	x1 = d["cx"] - d["insertion_width"]/2 + corner_protection
 	x2 = x1 - 25
 	x3 = 120
 	x4 = 80
 	x5 = 60
 
 	y1 = d["height"] - 30
-	y2 = d["height_1"] - d["t_tabletop"] + insertion_length
+	y2 = d["height_1"] - d["t_tabletop"] + d["insertion_length"]
 	y3 = y2 - 5
 	y4 = y2 - 12
-	y7 = d["height_2"] - insertion_length
+	y7 = d["height_2"] - d["insertion_length"]
 	y6 = y7 + 5
 	y5 = y7 + 12
 
@@ -130,5 +136,8 @@ def leg(d):
 
 	hole = Part.makeCylinder(d["hole_dia_leg"] / 2.0, d["height"], Base.Vector(d["cx"], 0, 0), Base.Vector(0, 0, 1), 360)
 	m = m.cut(hole)
-
+	corner_cutout = Part.makeBox(2*d["t_leg"], 2*d["t_leg"], d["t_glass"])
+	corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45)
+	corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["t_glass"]))
+	m = m.cut(corner_cutout)
 	return m
