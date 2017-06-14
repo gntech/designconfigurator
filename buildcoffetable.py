@@ -78,7 +78,7 @@ def leg_drw(d):
     dc.common.add_model(doc, leg1, "leg")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
-with open("designparameters.yml", "r") as f:
+with open("ct1_designparameters.yml", "r") as f:
     d = yaml.load(f)
 
 coffetable_assy(d)

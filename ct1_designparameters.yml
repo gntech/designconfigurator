@@ -1,12 +1,12 @@
 project: "Coffe table"
-assy: {nr: "103001-801", name: "Assy", rev: "A"}
+assy:     {nr: "103001-801", name: "Assy", rev: "A"}
 tabletop: {nr: "103001-001", name: "Tabletop", rev: "A"}
-leg: {nr: "103002-001", name: "Leg", rev: "A"}
+leg:      {nr: "103002-001", name: "Leg", rev: "A"}
 glasstop: {nr: "103003-001", name: "Glasstop", rev: "A"}
 
 length: 1000
 width: 700
-height: 900
+height: 500
 height_1: 340
 height_2: 140
 t_glass: 8

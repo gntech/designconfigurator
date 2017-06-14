@@ -1,0 +1,4 @@
+project: "Coffe table 2"
+assy:     {nr: "104001-801", name: "Assy", rev: "A"}
+tabletop: {nr: "104001-001", name: "Tabletop", rev: "A"}
+leg:      {nr: "104002-001", name: "Leg", rev: "A"}
