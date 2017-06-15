@@ -2,16 +2,47 @@
 
 import math
 import sys
+import yaml
 sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
-import FreeCAD, Part
+import FreeCAD
 from FreeCAD import Base
 
 import designconfigurator as dc
 
+def load_parameters(fn):
+    parameters = {
+        "project": "Undefined",
+        "assy":     {"nr": "aaaaaa-aaa", "name": "Assy", "rev": "A"},
+        "tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
+        "leg":      {"nr": "cccccc-ccc", "name": "Leg", "rev": "A"},
+        "length": 1000,
+        "width": 700,
+        "height": 500,
+        "height_1": 340,
+        "height_1": 140,
+        "t_tabletop": 18,
+        "t_leg": 36,
+        "t_glass": 8,
+        "insertion_width": 50,
+        "insertion_length": 3,
+        "hole_dia_tabletop": 9,
+        "hole_dia_leg": 8,
+        "cx": 200
+    }
+
+    with open(fn, "r") as f:
+        user_parameters = yaml.load(f)
+
+    parameters.update(user_parameters)
+    return parameters
+
 def glasstop(d):
     m = Part.makeBox(d["length"], d["width"], d["t_glass"])
     m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, -d["t_glass"]))
+
+    m = dc.model.chamfer_edges_longer_than(m, 2, 100)
+
     return m
 
 def tabletop(d):
@@ -60,6 +91,8 @@ def tabletop(d):
         insert.translate(p)
         m = m.cut(hole).cut(insert)
         a = a + 90
+
+    m = dc.model.fillet_edges_longer_than(m, 7, 300)
 
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
@@ -140,4 +173,81 @@ def leg(d):
     corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45)
     corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["t_glass"]))
     m = m.cut(corner_cutout)
+
+    m = dc.model.fillet_edges_longer_than(m, 7, 100)
+
     return m
+
+def coffetable_assy(d):
+    # The glass tabletop
+    gt1 = glasstop(d)
+    gt1.translate(Base.Vector(0, 0, d["height"]))
+
+    # The upper oak tabletop
+    tt1 = tabletop(d)
+    tt1.translate(Base.Vector(0, 0, d["height_1"]))
+
+    # The lower oak tabletop
+    tt2 = tabletop(d)
+    tt2.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
+    tt2.translate(Base.Vector(0, 0, d["height_2"] - d["t_tabletop"]))
+
+    # The first leg
+    leg1 = leg(d)
+    leg1.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 225)
+    leg1.translate(Base.Vector( d["length"] / 2, d["width"] / 2, 0))
+
+    # The second leg
+    leg2 = leg(d)
+    leg2.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 315)
+    leg2.translate(Base.Vector(-d["length"] / 2, d["width"] / 2, 0))
+
+    # The third leg
+    leg3 = leg(d)
+    leg3.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 45)
+    leg3.translate(Base.Vector(-d["length"] / 2, -d["width"] / 2, 0))
+
+    # The fourth leg
+    leg4 = leg(d)
+    leg4.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 135)
+    leg4.translate(Base.Vector( d["length"] / 2, -d["width"] / 2, 0))
+
+    doc = dc.common.create_doc()
+    dc.common.add_model(doc, gt1, "glassTop")
+    dc.common.add_model(doc, tt1, "upperTableTop")
+    dc.common.add_model(doc, tt2, "lowerTableTop")
+    dc.common.add_model(doc, leg1, "leg1")
+    dc.common.add_model(doc, leg2, "leg2")
+    dc.common.add_model(doc, leg3, "leg3")
+    dc.common.add_model(doc, leg4, "leg4")
+
+    doc.saveAs(dc.common.fn(d, "assy") + ".fcstd")
+
+def glasstop_drw(d):
+    # The glass tabletop
+    gt1 = glasstop(d)
+    doc = dc.common.create_doc()
+    dc.common.add_model(doc, gt1, "glassTop")
+    doc.saveAs(dc.common.fn(d, "glasstop") + ".fcstd")
+
+def tabletop_drw(d):
+    # The oak tabletop
+    tt1 = tabletop(d)
+    doc = dc.common.create_doc()
+    m = dc.common.add_model(doc, tt1, "tableTop")
+    p = dc.common.add_drawing_page(doc)
+    dc.drawing.create_drawing(doc, p, m, d["tabletop"])
+    doc.saveAs(dc.common.fn(d, "tabletop") + ".fcstd")
+
+def leg_drw(d):
+    leg1 = leg(d)
+    doc = dc.common.create_doc()
+    dc.common.add_model(doc, leg1, "leg")
+    doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
+
+d = load_parameters("ct1_designparameters.yml")
+
+coffetable_assy(d)
+glasstop_drw(d)
+tabletop_drw(d)
+leg_drw(d)

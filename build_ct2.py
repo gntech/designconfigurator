@@ -11,37 +11,42 @@ from FreeCAD import Base
 import designconfigurator as dc
 
 def load_parameters(fn):
-    d = {"project": "Undefined",
+    parameters = {
+        "project": "Undefined",
         "assy":     {"nr": "aaaaaa-aaa", "name": "Assy", "rev": "A"},
         "tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
         "leg":      {"nr": "cccccc-ccc", "name": "Leg", "rev": "A"},
-        "ccx": 600,
-        "ccy": 350,
+        "length": 1000,
+        "width": 700,
         "height": 500,
-        "height_1": 180,
+        "height_1": 190,
         "t_tabletop": 18,
-        "t_leg": 36,
-        "insertion_width_1": 50,
+        "t_leg": 42,
+        "insertion_width_1": 45,
         "insertion_width_2": 80,
-        "insertion_width_3": 40,
+        "insertion_width_3": 50,
         "insertion_length": 3,
         "hole_dia_tabletop": 9,
         "hole_dia_leg": 8,
-        "tabletop_corner_radii": 50,
-        "tabletop_delta_x": -30,
-        "tabletop_delta_y": -30,
+        "tabletop_corner_radii": 30,
+        "tabletop_delta_x": 30,
+        "tabletop_delta_y": -40,
         "leg_width": 60,
-        "cx": 220}
+        "cx": 200
+    }
 
     with open(fn, "r") as f:
-        d_user = yaml.load(f)
+        user_parameters = yaml.load(f)
 
-    d.update(d_user)
-    return d
+    parameters.update(user_parameters)
+    return parameters
 
-def tabletop(d):
-    y0 = d["ccy"] / 2.0 + d["tabletop_corner_radii"]
-    x0 = d["ccx"] / 2.0 + d["tabletop_corner_radii"]
+def upper_tabletop(d):
+    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+
+    x0 = d["length"] / 2.0 + d["tabletop_corner_radii"]
+    y0 = d["width"] / 2.0 + d["tabletop_corner_radii"]
     x1 = x0 + d["tabletop_delta_x"]
     y1 = y0 + d["tabletop_delta_y"]
 
@@ -59,8 +64,8 @@ def tabletop(d):
     m = face.extrude(Base.Vector(0, 0, d["t_tabletop"]))
     m = dc.model.fillet_edges_by_length(m, d["tabletop_corner_radii"], d["t_tabletop"])
 
-    hx = d["ccx"] / 2.0
-    hy = d["ccy"] / 2.0
+    hx = ccx / 2.0
+    hy = ccy / 2.0
 
     hole_points = [ Base.Vector( hx,  hy, 0),
                     Base.Vector(-hx,  hy, 0),
@@ -70,24 +75,34 @@ def tabletop(d):
     a = 45
     for p in hole_points:
         hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["t_tabletop"], p, Base.Vector(0, 0, 1), 360)
-        insert = Part.makeBox(d["t_leg"], d["insertion_width"], d["insertion_length"])
+        insert = Part.makeBox(d["t_leg"], d["insertion_width_2"], d["insertion_length"])
         insert = dc.model.fillet_edges_by_length(insert, 5, d["insertion_length"])
-        insert.translate(Base.Vector(-d["t_leg"]/2, -d["insertion_width"]/2, 0))
-        insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -a)
+        insert.translate(Base.Vector(-d["t_leg"]/2, -(d["insertion_width_3"] + d["insertion_width_2"]) / 2.0, 0))
+        insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), a)
         insert.translate(p)
-        m = m.cut(hole).cut(insert)
+        hole_2 = Part.makeBox(d["t_leg"], d["insertion_width_1"], d["t_tabletop"])
+        hole_2 = dc.model.fillet_edges_by_length(hole_2, 7, d["t_tabletop"])
+        hole_2.translate(Base.Vector(-d["t_leg"]/2, -d["cx"], 0))
+        hole_2.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), a)
+        hole_2.translate(p)
+        m = m.cut(hole).cut(insert).cut(hole_2)
         a = a + 90
+
+    m = dc.model.fillet_edges_longer_than(m, 7, 500)
 
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
 
 def lower_tabletop(d):
+    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+
     r3edge = 100
     deltax = 35
     deltay = 35
-    delta3 = 30
-    x2 = d["ccx"] / 2.0 + 70
-    y2 = d["ccy"] / 2.0 + 70
+    delta3 = 40
+    x2 = ccx / 2.0 + 70
+    y2 = ccy / 2.0 + 70
     x0 = x2 - math.sqrt((r3edge**2)/2)
     y0 = y2 - math.sqrt((r3edge**2)/2)
     x1 = x0 + math.sqrt((delta3**2)/2)
@@ -109,8 +124,8 @@ def lower_tabletop(d):
     m = face.extrude(Base.Vector(0, 0, d["t_tabletop"]))
     m = dc.model.fillet_edges_by_length(m, 20, d["t_tabletop"])
 
-    hx = d["ccx"] / 2.0
-    hy = d["ccy"] / 2.0
+    hx = ccx / 2.0
+    hy = ccy / 2.0
 
     hole_points = [ Base.Vector( hx,  hy, 0),
                     Base.Vector(-hx,  hy, 0),
@@ -128,33 +143,34 @@ def lower_tabletop(d):
         m = m.cut(hole).cut(insert)
         a = a + 90
 
+    m = dc.model.fillet_edges_longer_than(m, 7, 500)
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
 
 def leg(d):
     x0 = d["insertion_width_1"]
-    x2 = 140
-    x1 = (x0 + x2) / 2.0 - 12
+    x2 = 150
+    x1 = (x0 + x2) / 2.0 - 30
     x4 = d["cx"] - d["insertion_width_3"] / 2.0
     x3 = (x2 + x4) / 2.0 + 10
-    x5 = d["cx"] + (d["insertion_width_2"] - d["insertion_width_3"]) / 2.0
+    x5 = x4 + d["insertion_width_2"]
     x7 = d["cx"] + d["insertion_width_3"] / 2.0
     x6 = (x5 + x7) / 2.0 - 10
     x8 = d["cx"] - d["insertion_width_3"] / 2.0
     x9 = x8 - 30
-    x11 = 120
+    x11 = 100
     x10 = (x9 + x11) / 2.0 - 5
-    x12 = x11 - 60
+    x12 = x11 - 50
     x13 = x12 + 12
 
     y0 = d["height"]
     y1 = d["height"] - d["t_tabletop"]
     y4 = d["height"] - d["t_tabletop"] + d["insertion_length"]
-    y3 = y0 - 160
+    y3 = y0 - 180
     y2 = (y1 + y3) / 2.0
     y6 = d["height_1"] - d["insertion_length"]
     y5 = (y4 + y6) / 2.0
-    y7 = y6 + 10
+    y7 = y6 + 25
     y8 = y7 / 2.0
     y9 = y0 - 50
 
@@ -198,20 +214,26 @@ def leg(d):
     m = dc.model.fillet_edge_xy(m,  7, p[4])
     m = dc.model.fillet_edge_xy(m,  7, p[11])
     m = dc.model.fillet_edge_xy(m, 12, p[12])
-    m = dc.model.fillet_edge_xy(m, 120, p[17])
+    m = dc.model.fillet_edge_xy(m, 200, p[17])
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
     m.translate(Base.Vector(0, d["t_leg"] / 2.0, 0))
 
     hole = Part.makeCylinder(d["hole_dia_leg"] / 2.0, d["height"], Base.Vector(d["cx"], 0, d["height_1"] - d["insertion_length"]), Base.Vector(0, 0, 1), 360)
     m = m.cut(hole)
+
+    m = dc.model.fillet_edges_longer_than(m, 7, 100)
     return m
 
 def coffetable_assy(d):
-    x = d["ccx"] / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
-    y = d["ccy"] / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
+    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
+
+    x = ccx / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
+    y = ccy / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
+
     # The upper oak tabletop
-    #tt1 = tabletop(d)
-    #tt1.translate(Base.Vector(0, 0, d["height"]))
+    tt1 = upper_tabletop(d)
+    tt1.translate(Base.Vector(0, 0, d["height"]))
 
     # The lower oak tabletop
     tt2 = lower_tabletop(d)
@@ -239,7 +261,7 @@ def coffetable_assy(d):
     leg4.translate(Base.Vector( x, -y, 0))
 
     doc = dc.common.create_doc()
-    #dc.common.add_model(doc, tt1, "upperTableTop")
+    dc.common.add_model(doc, tt1, "upperTableTop")
     dc.common.add_model(doc, tt2, "lowerTableTop")
     dc.common.add_model(doc, leg1, "leg1")
     dc.common.add_model(doc, leg2, "leg2")

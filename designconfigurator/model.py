@@ -33,3 +33,26 @@ def fillet_edges_by_length(obj, r, edgelength):
             edges_to_fillet.append(edge)
 
     return obj.makeFillet(r, edges_to_fillet)
+
+def fillet_edges_longer_than(obj, r, edgelength):
+    edges_to_fillet = []
+    for edge in obj.Edges:
+        if edge.Length > edgelength:
+            edges_to_fillet.append(edge)
+
+    return obj.makeFillet(r, edges_to_fillet)
+
+def chamfer_edges_longer_than(obj, r, edgelength):
+    edges_to_chamfer = []
+    for edge in obj.Edges:
+        if edge.Length > edgelength:
+            edges_to_chamfer.append(edge)
+
+    return obj.makeChamfer(r, edges_to_chamfer)
+
+def fillet_edges_by_nr(obj, r, edge_nr):
+    edges_to_fillet = []
+    for nr in edge_nr:
+        edges_to_fillet.append(obj.Edges[nr])
+
+    return obj.makeFillet(r, edges_to_fillet)
