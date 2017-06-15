@@ -9,12 +9,19 @@ from FreeCAD import Base
 
 import common
 
-def create_drawing(doc, page, model, d):
+def create_drawing(doc, page, model, d, viewplane="xy"):
     volume = model.Shape.Volume
     density = 0.74e-6 # kg / mm^3
     mass = volume * density
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     scale = 0.2
+
+    if viewplane == "xy":
+        view_direction = (0.0,0.0,1.0)
+    elif viewplane == "xz":
+        view_direction = (0.0,1.0,0.0)
+    if viewplane == "yz":
+        view_direction = (1.0,0.0,0.0)
 
     page.Template.setEditFieldContent("AUTHOR_NAME", "Gustav Naslund")
     page.Template.setEditFieldContent("DRAWING_TITLE", d["name"])
@@ -33,7 +40,7 @@ def create_drawing(doc, page, model, d):
 
     doc.addObject('TechDraw::DrawViewPart','View')
     doc.View.Source = model
-    doc.View.Direction = (0.0,0.0,1.0)
+    doc.View.Direction = view_direction
     doc.View.Scale = 1.0
     doc.View.Rotation = 0.0
     page.addView(doc.View)

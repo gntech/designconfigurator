@@ -37,15 +37,16 @@ def load_parameters(fn):
     parameters.update(user_parameters)
     return parameters
 
-def glasstop(d):
+def glasstop(d, dressup=True):
     m = Part.makeBox(d["length"], d["width"], d["t_glass"])
     m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, -d["t_glass"]))
 
-    m = dc.model.chamfer_edges_longer_than(m, 2, 100)
+    if dressup:
+        m = dc.model.chamfer_edges_longer_than(m, 2, 100)
 
     return m
 
-def tabletop(d):
+def tabletop(d, dressup=True):
     r3edge = 100
     deltax = 35
     deltay = 35
@@ -92,18 +93,19 @@ def tabletop(d):
         m = m.cut(hole).cut(insert)
         a = a + 90
 
-    m = dc.model.fillet_edges_longer_than(m, 7, 300)
+    if dressup:
+        m = dc.model.fillet_edges_longer_than(m, 7, 300)
 
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
 
-def leg(d):
-    corner_protection = 15
+def leg(d, dressup=True):
+    corner_protection = 12
 
     x0 = d["cx"] + d["insertion_width"]/2 + corner_protection
     x1 = d["cx"] - d["insertion_width"]/2 + corner_protection
     x2 = x1 - 25
-    x3 = 120
+    x3 = 115
     x4 = 80
     x5 = 60
 
@@ -115,7 +117,7 @@ def leg(d):
     y6 = y7 + 5
     y5 = y7 + 12
 
-    dx = 10
+    dx = 5
 
     p = [
             Base.Vector( x3, 0, 0),
@@ -174,7 +176,8 @@ def leg(d):
     corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["t_glass"]))
     m = m.cut(corner_cutout)
 
-    m = dc.model.fillet_edges_longer_than(m, 7, 100)
+    if dressup:
+        m = dc.model.fillet_edges_longer_than(m, 7, 100)
 
     return m
 
@@ -232,7 +235,7 @@ def glasstop_drw(d):
 
 def tabletop_drw(d):
     # The oak tabletop
-    tt1 = tabletop(d)
+    tt1 = tabletop(d, dressup=False)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "tableTop")
     p = dc.common.add_drawing_page(doc)
@@ -240,9 +243,11 @@ def tabletop_drw(d):
     doc.saveAs(dc.common.fn(d, "tabletop") + ".fcstd")
 
 def leg_drw(d):
-    leg1 = leg(d)
+    leg1 = leg(d, dressup=False)
     doc = dc.common.create_doc()
-    dc.common.add_model(doc, leg1, "leg")
+    m = dc.common.add_model(doc, leg1, "leg")
+    p = dc.common.add_drawing_page(doc)
+    dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
 d = load_parameters("ct1_designparameters.yml")

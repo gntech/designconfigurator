@@ -9,11 +9,11 @@ width: 700
 height: 500
 height_1: 340
 height_2: 140
-t_glass: 8
+t_glass: 10
 t_tabletop: 18
 t_leg: 36
 insertion_width: 50
 insertion_length: 3
-cx: 205
+cx: 200
 hole_dia_tabletop: 9
 hole_dia_leg: 8
