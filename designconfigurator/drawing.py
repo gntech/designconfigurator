@@ -13,6 +13,8 @@ def create_drawing(doc, page, model, d, viewplane="xy"):
     volume = model.Shape.Volume
     density = 0.74e-6 # kg / mm^3
     mass = volume * density
+    bb = model.Shape.BoundBox
+    min_stock = "Estimated stock size: %.1f x %.1f x %.1f" % (bb.XLength,bb.YLength,bb.ZLength)
     date = datetime.datetime.now().strftime("%Y-%m-%d")
     scale = 0.2
 
@@ -25,7 +27,7 @@ def create_drawing(doc, page, model, d, viewplane="xy"):
 
     page.Template.setEditFieldContent("AUTHOR_NAME", "Gustav Naslund")
     page.Template.setEditFieldContent("DRAWING_TITLE", d["name"])
-    page.Template.setEditFieldContent("SI-1", "")
+    page.Template.setEditFieldContent("SI-1", min_stock)
     page.Template.setEditFieldContent("SI-2", "")
     page.Template.setEditFieldContent("FreeCAD_DRAWING", "")
     page.Template.setEditFieldContent("SI-4", "")
@@ -47,3 +49,6 @@ def create_drawing(doc, page, model, d, viewplane="xy"):
     page.Scale = scale
 
     doc.recompute()
+
+def add_info(page, field, content):
+    page.Template.setEditFieldContent(field, content)

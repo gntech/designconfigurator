@@ -18,10 +18,10 @@ def load_parameters(fn):
         "lower_tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
         "leg":      {"nr": "cccccc-ccc", "name": "Leg", "rev": "A"},
         "length": 1000,
-        "width": 700,
+        "width": 600,
         "height": 500,
-        "height_1": 190,
-        "t_tabletop": 18,
+        "height_1": 220,
+        "t_tabletop": 20,
         "t_leg": 42,
         "insertion_width_1": 45,
         "insertion_width_2": 80,
@@ -33,7 +33,9 @@ def load_parameters(fn):
         "tabletop_delta_x": 40,
         "tabletop_delta_y": -30,
         "leg_width": 60,
-        "cx": 200
+        "cx": 200,
+        "tabletop_edge_radii": 4,
+        "leg_edge_radii": 10
     }
 
     with open(fn, "r") as f:
@@ -78,13 +80,13 @@ def upper_tabletop(d, dressup=True):
         hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["t_tabletop"], p, Base.Vector(0, 0, 1), 360)
 
         insert_1 = Part.makeBox(d["t_leg"], d["insertion_width_1"], d["insertion_length"])
-        insert_1 = dc.model.fillet_edges_by_length(insert_1, 7, d["insertion_length"])
+        insert_1 = dc.model.fillet_edges_by_length(insert_1, d["leg_edge_radii"], d["insertion_length"])
         insert_1.translate(Base.Vector(-d["t_leg"]/2, -d["cx"], 0))
         insert_1.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), a)
         insert_1.translate(p)
 
         insert_2 = Part.makeBox(d["t_leg"], d["insertion_width_2"], d["insertion_length"])
-        insert_2 = dc.model.fillet_edges_by_length(insert_2, 5, d["insertion_length"])
+        insert_2 = dc.model.fillet_edges_by_length(insert_2, d["leg_edge_radii"], d["insertion_length"])
         insert_2.translate(Base.Vector(-d["t_leg"]/2, -d["insertion_width_3"] / 2.0, 0))
         insert_2.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), a)
         insert_2.translate(p)
@@ -93,7 +95,7 @@ def upper_tabletop(d, dressup=True):
         a = a + 90
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, 7, 500)
+        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 500)
 
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
@@ -105,13 +107,13 @@ def lower_tabletop(d, dressup=True):
     r3edge = 100
     deltax = 20
     deltay = -20
-    delta3 = 40
+    delta3 = -math.sqrt((5**2)/2)
     x2 = ccx / 2.0 + 70
     y2 = ccy / 2.0 + 70
     x0 = x2 - math.sqrt((r3edge**2)/2)
     y0 = y2 - math.sqrt((r3edge**2)/2)
-    x1 = x0 + math.sqrt((delta3**2)/2)
-    y1 = y0 + math.sqrt((delta3**2)/2)
+    x1 = (x0 + x2) / 2.0 + delta3
+    y1 = (y0 + y2) / 2.0 + delta3
     x3 = x2 + deltax
     y3 = y2 + deltay
 
@@ -141,7 +143,7 @@ def lower_tabletop(d, dressup=True):
     for p in hole_points:
         hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["t_tabletop"], p, Base.Vector(0, 0, 1), 360)
         insert = Part.makeBox(d["t_leg"], d["insertion_width_3"], d["insertion_length"])
-        insert = dc.model.fillet_edges_by_length(insert, 5, d["insertion_length"])
+        insert = dc.model.fillet_edges_by_length(insert, d["leg_edge_radii"], d["insertion_length"])
         insert.translate(Base.Vector(-d["t_leg"]/2, -d["insertion_width_3"]/2, 0))
         insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -a)
         insert.translate(p)
@@ -149,7 +151,7 @@ def lower_tabletop(d, dressup=True):
         a = a + 90
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, 7, 500)
+        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 500)
 
     m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
     return m
@@ -173,7 +175,7 @@ def leg(d, dressup=True):
     y0 = d["height"]
     y1 = d["height"] - d["t_tabletop"]
     y4 = d["height"] - d["t_tabletop"] + d["insertion_length"]
-    y3 = y0 - 180
+    y3 = d["height_1"] + 120
     y2 = (y1 + y3) / 2.0
     y6 = d["height_1"] - d["insertion_length"]
     y5 = (y4 + y6) / 2.0
@@ -221,7 +223,7 @@ def leg(d, dressup=True):
     m = dc.model.fillet_edge_xy(m, 20, p[4])
     m = dc.model.fillet_edge_xy(m,  7, p[11])
     m = dc.model.fillet_edge_xy(m, 12, p[12])
-    m = dc.model.fillet_edge_xy(m, 180, p[17])
+    m = dc.model.fillet_edge_xy(m, 150, p[17])
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
     m.translate(Base.Vector(0, d["t_leg"] / 2.0, 0))
 
@@ -229,7 +231,7 @@ def leg(d, dressup=True):
     m = m.cut(hole)
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, 7, 100)
+        m = dc.model.fillet_edges_longer_than(m, d["leg_edge_radii"], 100)
 
     return m
 
@@ -282,20 +284,24 @@ def coffetable_assy(d):
 def upper_tabletop_drw(d):
     # The oak tabletop
     tt1 = upper_tabletop(d, dressup=False)
+    tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "upper_tabletop")
     p = dc.common.add_drawing_page(doc)
     dc.drawing.create_drawing(doc, p, m, d["upper_tabletop"])
-    doc.saveAs(dc.common.fn(d, "tabletop") + ".fcstd")
+    dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
+    doc.saveAs(dc.common.fn(d, "upper_tabletop") + ".fcstd")
 
 def lower_tabletop_drw(d):
     # The oak tabletop
     tt1 = lower_tabletop(d, dressup=False)
+    tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "lower_tabletop")
     p = dc.common.add_drawing_page(doc)
     dc.drawing.create_drawing(doc, p, m, d["lower_tabletop"])
-    doc.saveAs(dc.common.fn(d, "tabletop") + ".fcstd")
+    dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
+    doc.saveAs(dc.common.fn(d, "lower_tabletop") + ".fcstd")
 
 def leg_drw(d):
     leg1 = leg(d, dressup=False)
@@ -309,5 +315,6 @@ def leg_drw(d):
 d = load_parameters("ct2_designparameters.yml")
 
 coffetable_assy(d)
-#tabletop_drw(d)
+upper_tabletop_drw(d)
+lower_tabletop_drw(d)
 leg_drw(d)

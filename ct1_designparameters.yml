@@ -5,7 +5,7 @@ leg:      {nr: "103002-001", name: "Leg", rev: "A"}
 glasstop: {nr: "103003-001", name: "Glasstop", rev: "A"}
 
 length: 1000
-width: 700
+width: 600
 height: 500
 height_1: 340
 height_2: 140

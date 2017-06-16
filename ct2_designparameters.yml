@@ -1,4 +1,13 @@
 project: "Coffe table 2"
 assy:     {nr: "104001-801", name: "Assy", rev: "A"}
-tabletop: {nr: "104001-001", name: "Tabletop", rev: "A"}
-leg:      {nr: "104002-001", name: "Leg", rev: "A"}
+upper_tabletop: {nr: "104001-001", name: "Upper Tabletop", rev: "A"}
+lower_tabletop: {nr: "104002-001", name: "Lower Tabletop", rev: "A"}
+leg:      {nr: "104003-001", name: "Leg", rev: "A"}
+length: 1000
+width: 600
+height: 500
+height_1: 220
+t_tabletop: 20
+t_leg: 42
+tabletop_edge_radii: 4
+leg_edge_radii: 10
