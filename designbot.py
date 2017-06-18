@@ -7,14 +7,10 @@ import designconfigurator as dc
 
 def build_design(user_parameters):
     if user_parameters["design"] == "ct1":
-        d = dc.ct1_defaults
-        d.update(user_parameters)
-        dc.ct1.build_all(d)
+        dc.ct1.build_all(user_parameters)
 
     elif user_parameters["design"] == "ct2":
-        d = dc.ct2_defaults
-        d.update(user_parameters)
-        dc.ct2.build_all(d)
+        dc.ct2.build_all(user_parameters)
 
     else:
         print("Unrecognized design: " + user_parameters["design"])

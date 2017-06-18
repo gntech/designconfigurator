@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 
 import math
+import os
 import sys
-import yaml
-sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
+sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 import FreeCAD
 from FreeCAD import Base, Part
 
@@ -223,7 +223,9 @@ def leg_drw(d):
     dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
-def build_all(d):
+def build_all(user_parameters):
+    d = dc.common.load_parameters(os.path.join(os.path.dirname(__file__), "ct1_defaults.yml"))
+    d.update(user_parameters)
     coffetable_assy(d)
     glasstop_drw(d)
     tabletop_drw(d)

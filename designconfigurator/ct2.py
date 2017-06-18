@@ -278,7 +278,9 @@ def leg_drw(d):
     dc.common.add_model(doc, leg1, "leg")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
-def build_all(d):
+def build_all(user_parameters):
+    d = dc.common.load_parameters(os.path.join(os.path.dirname(__file__), "ct2_defaults.yml"))
+    d.update(user_parameters)
     coffetable_assy(d)
     upper_tabletop_drw(d)
     lower_tabletop_drw(d)
