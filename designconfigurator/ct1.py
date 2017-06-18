@@ -10,33 +10,6 @@ from FreeCAD import Base, Part
 
 import designconfigurator as dc
 
-def load_parameters(fn):
-    parameters = {
-        "project": "Undefined",
-        "assy":     {"nr": "aaaaaa-aaa", "name": "Assy", "rev": "A"},
-        "tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
-        "leg":      {"nr": "cccccc-ccc", "name": "Leg", "rev": "A"},
-        "length": 1000,
-        "width": 700,
-        "height": 500,
-        "height_1": 340,
-        "height_1": 140,
-        "t_tabletop": 18,
-        "t_leg": 36,
-        "t_glass": 8,
-        "insertion_width": 50,
-        "insertion_length": 3,
-        "hole_dia_tabletop": 9,
-        "hole_dia_leg": 8,
-        "cx": 200
-    }
-
-    with open(fn, "r") as f:
-        user_parameters = yaml.load(f)
-
-    parameters.update(user_parameters)
-    return parameters
-
 def glasstop(d, dressup=True):
     m = Part.makeBox(d["length"], d["width"], d["t_glass"])
     m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, -d["t_glass"]))
@@ -255,3 +228,6 @@ def build_all(d):
     glasstop_drw(d)
     tabletop_drw(d)
     leg_drw(d)
+
+if __name__ == "__main__":
+    print("This file should not be run directly.")
