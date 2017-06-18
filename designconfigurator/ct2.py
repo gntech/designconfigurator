@@ -1,48 +1,14 @@
 #!/usr/bin/env python2
 
 import math
+import os
 import sys
-import yaml
-sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
+sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 import FreeCAD
-from FreeCAD import Base
+from FreeCAD import Base, Part
 
 import designconfigurator as dc
-
-def load_parameters(fn):
-    parameters = {
-        "project": "Undefined",
-        "assy":     {"nr": "aaaaaa-aaa", "name": "Assy", "rev": "A"},
-        "upper_tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
-        "lower_tabletop": {"nr": "bbbbbb-bbb", "name": "Tabletop", "rev": "A"},
-        "leg":      {"nr": "cccccc-ccc", "name": "Leg", "rev": "A"},
-        "length": 1000,
-        "width": 600,
-        "height": 500,
-        "height_1": 220,
-        "t_tabletop": 20,
-        "t_leg": 42,
-        "insertion_width_1": 45,
-        "insertion_width_2": 80,
-        "insertion_width_3": 50,
-        "insertion_length": 5,
-        "hole_dia_tabletop": 9,
-        "hole_dia_leg": 8,
-        "tabletop_corner_radii": 30,
-        "tabletop_delta_x": 40,
-        "tabletop_delta_y": -30,
-        "leg_width": 60,
-        "cx": 200,
-        "tabletop_edge_radii": 4,
-        "leg_edge_radii": 10
-    }
-
-    with open(fn, "r") as f:
-        user_parameters = yaml.load(f)
-
-    parameters.update(user_parameters)
-    return parameters
 
 def upper_tabletop(d, dressup=True):
     ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0)
@@ -312,9 +278,11 @@ def leg_drw(d):
     dc.common.add_model(doc, leg1, "leg")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
-d = load_parameters("ct2_designparameters.yml")
+def build_all(d):
+    coffetable_assy(d)
+    upper_tabletop_drw(d)
+    lower_tabletop_drw(d)
+    leg_drw(d)
 
-coffetable_assy(d)
-upper_tabletop_drw(d)
-lower_tabletop_drw(d)
-leg_drw(d)
+if __name__ == "__main__":
+    print("This file should not be run directly.")

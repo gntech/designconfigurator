@@ -1,18 +1,24 @@
 import datetime
+import os
 import sys
-sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
+sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 import FreeCAD, TechDraw
 from FreeCAD import Base
+import yaml
+
+def load_parameters(fn):
+    with open(fn, "r") as f:
+        d = yaml.load(f)
+    return d
 
 def fn(d, part=""):
-    date = datetime.datetime.now().strftime("%Y-%m-%d")
     fnparts = [d[part]["nr"],
                 d[part]["rev"],
                 d["project"].replace(" ", "-"),
-                d[part]["name"],
-                date]
-    return "_".join(fnparts)
+                d[part]["name"]]
+
+    return os.path.join(d["outfolder"], "_".join(fnparts))
 
 def create_doc():
     doc = FreeCAD.newDocument()

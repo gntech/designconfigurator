@@ -6,7 +6,7 @@ import yaml
 sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
 import FreeCAD
-from FreeCAD import Base
+from FreeCAD import Base, Part
 
 import designconfigurator as dc
 
@@ -250,9 +250,8 @@ def leg_drw(d):
     dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
-d = load_parameters("ct1_designparameters.yml")
-
-coffetable_assy(d)
-glasstop_drw(d)
-tabletop_drw(d)
-leg_drw(d)
+def build_all(d):
+    coffetable_assy(d)
+    glasstop_drw(d)
+    tabletop_drw(d)
+    leg_drw(d)
