@@ -81,6 +81,10 @@ def tabletop(d, dressup=True):
 
 def leg(d, dressup=True):
     corner_protection = 12
+    s1 = d["leg_s1"]
+    s2 = d["leg_s2"]
+    s3 = d["leg_s3"]
+    s4 = d["leg_s4"]
 
     x0 = d["cx"] + d["insertion_width"]/2 + corner_protection
     x1 = d["cx"] - d["insertion_width"]/2 + corner_protection
@@ -89,62 +93,66 @@ def leg(d, dressup=True):
     x4 = 80
     x5 = 60
 
-    y1 = d["height"] - 30
+    y0 = d["height"]
     y2 = d["height_1"] - d["tabletop_t"] + d["insertion_length"]
-    y3 = y2 - 5
-    y4 = y2 - 12
-    y7 = d["height_2"] - d["insertion_length"]
-    y6 = y7 + 5
-    y5 = y7 + 12
+    y1 = y2 - 12
+    y3 = y2 - d["insertion_length"]
+    y5 = d["height_2"] - d["insertion_length"]
+    y4 = y5 + d["insertion_length"]
+    y6 = y5 + 12
+    y7 = y0 - 30
 
-    dx = 5
+    p = [None] * 19
+    p[0] = Base.Vector(  0,  y0, 0)
+    p[1] = Base.Vector( x4,  y0, 0)
 
-    p = [
-            Base.Vector( x3, 0, 0),
-            Base.Vector( x5, 0,  0),
-            Base.Vector( x5+12, y6, 0),
-            Base.Vector(  0, y1,  0),
-            Base.Vector(  0, d["height"],  0),
-            Base.Vector( x4, d["height"],  0),
-            Base.Vector( x4+12, d["height"]-70, 0),
-            Base.Vector( x2, y4, 0),
-            Base.Vector( x1, y4, 0),
-            Base.Vector( x1, y2, 0),
-            Base.Vector( x0, y2, 0),
-            Base.Vector( x0, y3, 0),
-            Base.Vector( x0-dx, (y2+y7)/2, 0),
-            Base.Vector( x0, y6, 0),
-            Base.Vector( x0, y7, 0),
-            Base.Vector( x1, y7, 0),
-            Base.Vector( x1, y5, 0),
-            Base.Vector( x2, y5, 0),
-            Base.Vector( x3+18, 70, 0)]
+    p[3] = Base.Vector( x2,  y1, 0)
+    p[4] = Base.Vector( x1,  y1, 0)
+    p[5] = Base.Vector( x1,  y2, 0)
+    p[6] = Base.Vector( x0,  y2, 0)
+    p[7] = Base.Vector( x0,  y3, 0)
+
+    p[9] = Base.Vector(  x0,  y4, 0)
+    p[10] = Base.Vector( x0,  y5, 0)
+    p[11] = Base.Vector( x1,  y5, 0)
+    p[12] = Base.Vector( x1,  y6, 0)
+    p[13] = Base.Vector( x2,  y6, 0)
+
+    p[15] = Base.Vector( x3,   0, 0)
+    p[16] = Base.Vector( x5,   0, 0)
+
+    p[18] = Base.Vector(  0,  y7, 0)
+
+    p[2] = dc.model.sagpoint(p[1], p[3], s1)
+    p[8] = dc.model.sagpoint(p[7], p[9], s2)
+    p[14] = dc.model.sagpoint(p[13], p[15], s3)
+    p[17] = dc.model.sagpoint(p[16], p[18], s4)
 
     wire = [
             Part.makeLine(p[0], p[1]),
             dc.model.makeArc(p[1:4]),
             Part.makeLine(p[3], p[4]),
             Part.makeLine(p[4], p[5]),
-            dc.model.makeArc(p[5:8]),
-            Part.makeLine(p[7], p[8]),
-            Part.makeLine(p[8], p[9]),
+            Part.makeLine(p[5], p[6]),
+            Part.makeLine(p[6], p[7]),
+            dc.model.makeArc(p[7:10]),
             Part.makeLine(p[9], p[10]),
             Part.makeLine(p[10], p[11]),
-            dc.model.makeArc(p[11:14]),
-            Part.makeLine(p[13], p[14]),
-            Part.makeLine(p[14], p[15]),
+            Part.makeLine(p[11], p[12]),
+            Part.makeLine(p[12], p[13]),
+            dc.model.makeArc(p[13:16]),
             Part.makeLine(p[15], p[16]),
-            Part.makeLine(p[16], p[17]),
-            dc.model.makeArc([p[17], p[18], p[0]])]
+            dc.model.makeArc([p[16], p[17], p[18]]),
+            Part.makeLine(p[18], p[0])]
 
     face = Part.Face(Part.Wire(wire))
     m = face.extrude(Base.Vector(0, 0, d["leg_t"]))
 
-    m = dc.model.fillet_edge_xy(m, 100, p[3])
-    m = dc.model.fillet_edge_xy(m, 20, p[7])
-    m = dc.model.fillet_edge_xy(m, 8, p[8])
-    m = dc.model.fillet_edge_xy(m, 8, p[16])
-    m = dc.model.fillet_edge_xy(m, 20, p[17])
+    m = dc.model.fillet_edge_xy(m, 100, p[18])
+    m = dc.model.fillet_edge_xy(m, 20, p[3])
+    m = dc.model.fillet_edge_xy(m, 8, p[4])
+    m = dc.model.fillet_edge_xy(m, 8, p[12])
+    m = dc.model.fillet_edge_xy(m, 20, p[13])
 
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
     m.translate(Base.Vector(-corner_protection, d["leg_t"]/2, 0))
