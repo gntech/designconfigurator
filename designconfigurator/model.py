@@ -45,7 +45,11 @@ def fillet_edges_by_length(obj, r, edgelength):
         if edge.Length == edgelength:
             edges_to_fillet.append(edge)
 
-    return obj.makeFillet(r, edges_to_fillet)
+    if edges_to_fillet == []:
+        print("Did not find any edge with lenght " + str(edgelength))
+        return obj
+    else:
+        return obj.makeFillet(r, edges_to_fillet)
 
 def fillet_edges_longer_than(obj, r, edgelength):
     edges_to_fillet = []
@@ -53,7 +57,11 @@ def fillet_edges_longer_than(obj, r, edgelength):
         if edge.Length > edgelength:
             edges_to_fillet.append(edge)
 
-    return obj.makeFillet(r, edges_to_fillet)
+    if edges_to_fillet == []:
+        print("Didnt find any edges longer than " + str(edgelength))
+        return obj
+    else:
+        return obj.makeFillet(r, edges_to_fillet)
 
 def chamfer_edges_longer_than(obj, r, edgelength):
     edges_to_chamfer = []
@@ -61,7 +69,11 @@ def chamfer_edges_longer_than(obj, r, edgelength):
         if edge.Length > edgelength:
             edges_to_chamfer.append(edge)
 
-    return obj.makeChamfer(r, edges_to_chamfer)
+    if edges_to_chamfer == []:
+        print("Didnt find any edges longer than " + str(edgelength))
+        return obj
+    else:
+        return obj.makeChamfer(r, edges_to_chamfer)
 
 def fillet_edges_by_nr(obj, r, edge_nr):
     edges_to_fillet = []
