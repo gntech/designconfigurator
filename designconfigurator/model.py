@@ -4,8 +4,21 @@ sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD 
 import FreeCAD, Part
 from FreeCAD import Base
 
-def vector(x, y, z):
-    return Base.Vector(x, y, z)
+def sagpoint(p1, p2, sag):
+    assert p1.z == p2.z
+
+    pm = p2.sub(p1)
+    pm.multiply(0.5)
+
+    p = p2.sub(p1)
+    p.normalize() # Make length 1
+    p.multiply(abs(sag)) # Make length sag
+    if(sag > 0):
+        p.x, p.y = -p.y, p.x # Rotate sag 90 deg
+    else:
+        p.x, p.y = p.y, -p.x # Rotate sag -90 deg
+
+    return p1.add(pm).add(p)
 
 def makeArc(p):
     arc = Part.Arc(p[0], p[1], p[2])

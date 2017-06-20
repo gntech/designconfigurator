@@ -11,8 +11,8 @@ from FreeCAD import Base, Part
 import designconfigurator as dc
 
 def glasstop(d, dressup=True):
-    m = Part.makeBox(d["length"], d["width"], d["t_glass"])
-    m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, -d["t_glass"]))
+    m = Part.makeBox(d["length"], d["width"], d["glass_t"])
+    m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, -d["glass_t"]))
 
     if dressup:
         m = dc.model.chamfer_edges_longer_than(m, 2, 100)
@@ -20,32 +20,39 @@ def glasstop(d, dressup=True):
     return m
 
 def tabletop(d, dressup=True):
-    r3edge = 100
-    deltax = 35
-    deltay = 35
-    delta3 = 30
+    r3 =  d["tabletop_r3"]
+    s1 = d["tabletop_s1"]
+    s2 = d["tabletop_s2"]
+    s3 = d["tabletop_s3"]
     x2 = (d["length"] - 140) / 2.0
-    y2 = (d["width"] - 140) / 2.0
-    x0 = x2 - math.sqrt((r3edge**2)/2)
-    y0 = y2 - math.sqrt((r3edge**2)/2)
-    x1 = x0 + math.sqrt((delta3**2)/2)
-    y1 = y0 + math.sqrt((delta3**2)/2)
-    x3 = x2 + deltax
-    y3 = y2 - deltay
+    x1 = x2 - r3
+    y1 = (d["width"] - 140) / 2.0
+    y2 = y1 - r3
 
-    points = [Base.Vector(-x0, y2,  0),    Base.Vector(  0, y3,  0),
-                Base.Vector( x0, y2,  0), Base.Vector( x1, y1,  0),
-                Base.Vector( x2, y0,  0), Base.Vector( x3,  0,  0),
-                Base.Vector( x2, -y0, 0), Base.Vector( x1, -y1, 0),
-                Base.Vector( x0, -y2, 0), Base.Vector(  0, -y3, 0),
-                Base.Vector(-x0, -y2, 0), Base.Vector(-x1, -y1, 0),
-                Base.Vector(-x2, -y0, 0), Base.Vector(-x3,   0, 0),
-                Base.Vector(-x2,  y0, 0), Base.Vector(-x1,  y1, 0),
-                Base.Vector(-x0, y2,  0)]
+    p = [None] * 17
 
-    face = Part.Face(Part.Wire(dc.model.create_arcs(points)))
-    m = face.extrude(Base.Vector(0, 0, d["t_tabletop"]))
-    m = dc.model.fillet_edges_by_length(m, 20, d["t_tabletop"])
+    p[0] = Base.Vector(-x1,  y1, 0)
+    p[2] = Base.Vector( x1,  y1, 0)
+    p[4] = Base.Vector( x2,  y2, 0)
+    p[6] = Base.Vector( x2, -y2, 0)
+    p[8] = Base.Vector( x1, -y1, 0)
+    p[10] = Base.Vector(-x1, -y1, 0)
+    p[12] = Base.Vector(-x2, -y2, 0)
+    p[14] = Base.Vector(-x2,  y2, 0)
+    p[16] = Base.Vector(-x1,  y1, 0)
+
+    p[1] = dc.model.sagpoint(p[0], p[2], s1)
+    p[3] = dc.model.sagpoint(p[2], p[4], s2)
+    p[5] = dc.model.sagpoint(p[4], p[6], s3)
+    p[7] = dc.model.sagpoint(p[6], p[8], s2)
+    p[9] = dc.model.sagpoint(p[8], p[10], s1)
+    p[11] = dc.model.sagpoint(p[10], p[12], s2)
+    p[13] = dc.model.sagpoint(p[12], p[14], s3)
+    p[15] = dc.model.sagpoint(p[14], p[0], s2)
+
+    face = Part.Face(Part.Wire(dc.model.create_arcs(p)))
+    m = face.extrude(Base.Vector(0, 0, d["tabletop_t"]))
+    m = dc.model.fillet_edges_by_length(m, 20, d["tabletop_t"])
 
     hx = d["length"] / 2.0 - math.sqrt((d["cx"]**2) / 2.0)
     hy = d["width"] / 2.0 - math.sqrt((d["cx"]**2) / 2.0)
@@ -57,10 +64,10 @@ def tabletop(d, dressup=True):
 
     a = 45
     for p in hole_points:
-        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["t_tabletop"], p, Base.Vector(0, 0, 1), 360)
-        insert = Part.makeBox(d["t_leg"], d["insertion_width"], d["insertion_length"])
+        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["tabletop_t"], p, Base.Vector(0, 0, 1), 360)
+        insert = Part.makeBox(d["leg_t"], d["insertion_width"], d["insertion_length"])
         insert = dc.model.fillet_edges_by_length(insert, 5, d["insertion_length"])
-        insert.translate(Base.Vector(-d["t_leg"]/2, -d["insertion_width"]/2, 0))
+        insert.translate(Base.Vector(-d["leg_t"]/2, -d["insertion_width"]/2, 0))
         insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -a)
         insert.translate(p)
         m = m.cut(hole).cut(insert)
@@ -69,7 +76,7 @@ def tabletop(d, dressup=True):
     if dressup:
         m = dc.model.fillet_edges_longer_than(m, 7, 300)
 
-    m.translate(Base.Vector(0, 0, -d["t_tabletop"]))
+    m.translate(Base.Vector(0, 0, -d["tabletop_t"]))
     return m
 
 def leg(d, dressup=True):
@@ -83,7 +90,7 @@ def leg(d, dressup=True):
     x5 = 60
 
     y1 = d["height"] - 30
-    y2 = d["height_1"] - d["t_tabletop"] + d["insertion_length"]
+    y2 = d["height_1"] - d["tabletop_t"] + d["insertion_length"]
     y3 = y2 - 5
     y4 = y2 - 12
     y7 = d["height_2"] - d["insertion_length"]
@@ -131,7 +138,7 @@ def leg(d, dressup=True):
             dc.model.makeArc([p[17], p[18], p[0]])]
 
     face = Part.Face(Part.Wire(wire))
-    m = face.extrude(Base.Vector(0, 0, d["t_leg"]))
+    m = face.extrude(Base.Vector(0, 0, d["leg_t"]))
 
     m = dc.model.fillet_edge_xy(m, 100, p[3])
     m = dc.model.fillet_edge_xy(m, 20, p[7])
@@ -140,13 +147,13 @@ def leg(d, dressup=True):
     m = dc.model.fillet_edge_xy(m, 20, p[17])
 
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
-    m.translate(Base.Vector(-corner_protection, d["t_leg"]/2, 0))
+    m.translate(Base.Vector(-corner_protection, d["leg_t"]/2, 0))
 
     hole = Part.makeCylinder(d["hole_dia_leg"] / 2.0, d["height"], Base.Vector(d["cx"], 0, 0), Base.Vector(0, 0, 1), 360)
     m = m.cut(hole)
-    corner_cutout = Part.makeBox(2*d["t_leg"], 2*d["t_leg"], d["t_glass"])
+    corner_cutout = Part.makeBox(2*d["leg_t"], 2*d["leg_t"], d["glass_t"])
     corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45)
-    corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["t_glass"]))
+    corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["glass_t"]))
     m = m.cut(corner_cutout)
 
     if dressup:
@@ -166,7 +173,7 @@ def coffetable_assy(d):
     # The lower oak tabletop
     tt2 = tabletop(d)
     tt2.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
-    tt2.translate(Base.Vector(0, 0, d["height_2"] - d["t_tabletop"]))
+    tt2.translate(Base.Vector(0, 0, d["height_2"] - d["tabletop_t"]))
 
     # The first leg
     leg1 = leg(d)

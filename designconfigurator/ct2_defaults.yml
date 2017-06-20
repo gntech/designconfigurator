@@ -3,22 +3,33 @@ assy:           {nr: "aaaaaa-aaa", name: "Assy", rev: "A"}
 upper_tabletop: {nr: "bbbbbb-bbb", name: "Tabletop", rev: "A"}
 lower_tabletop: {nr: "bbbbbb-bbb", name: "Tabletop", rev: "A"}
 leg:            {nr: "cccccc-ccc", name: "Leg", rev: "A"}
+
 length: 1000
 width: 600
 height: 500
 height_1: 220
-t_tabletop: 20
-t_leg: 42
-tabletop_edge_radii: 4
-leg_edge_radii: 10
+
 insertion_width_1: 45
 insertion_width_2: 80
 insertion_width_3: 50
 insertion_length: 5
+
 hole_dia_tabletop: 9
 hole_dia_leg: 8
-tabletop_corner_radii: 30
-tabletop_delta_x: 40
-tabletop_delta_y: -30
+
+tabletop_edge_radii: 4
+tabletop_t: 20
+tabletop_r3: 75
+tabletop_s1: -30.0
+tabletop_s2: -15
+tabletop_s3: 25
+
+upper_tabletop_corner_radii: 30
+upper_tabletop_s1: -30
+upper_tabletop_s2: 30
+
+leg_t: 42
+leg_distance_from_corner: 35
+leg_edge_radii: 10
 leg_width: 60
 cx: 200
