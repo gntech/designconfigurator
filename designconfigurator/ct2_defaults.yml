@@ -5,7 +5,7 @@ lower_tabletop: {nr: "bbbbbb-bbb", name: "Tabletop", rev: "A"}
 leg:            {nr: "cccccc-ccc", name: "Leg", rev: "A"}
 
 length: 1000
-width: 600
+width: 700
 height: 500
 height_1: 220
 
@@ -19,17 +19,24 @@ hole_dia_leg: 8
 
 tabletop_edge_radii: 4
 tabletop_t: 20
-tabletop_r3: 75
-tabletop_s1: -30.0
-tabletop_s2: -15
-tabletop_s3: 25
+tabletop_r3: 50
+tabletop_s1: -10
+tabletop_s2: 8
+tabletop_s3: 10
 
-upper_tabletop_corner_radii: 30
-upper_tabletop_s1: -30
-upper_tabletop_s2: 30
+upper_tabletop_corner_radii: 50
+upper_tabletop_s1: -10
+upper_tabletop_s2: 20
 
 leg_t: 42
 leg_distance_from_corner: 35
 leg_edge_radii: 10
 leg_width: 60
+
+leg_s1: -25
+leg_s2: -8
+leg_s3: -8
+leg_s4: -8
+leg_s5: -30
+
 cx: 200

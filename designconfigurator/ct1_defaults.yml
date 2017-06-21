@@ -5,7 +5,7 @@ leg:      {nr: "103002-001", name: "Leg", rev: "A"}
 glasstop: {nr: "103003-001", name: "Glasstop", rev: "A"}
 
 length: 1000
-width: 600
+width: 700
 height: 500
 height_1: 340
 height_2: 140
@@ -23,7 +23,7 @@ tabletop_s1: -30.0
 tabletop_s2: -15
 tabletop_s3: 25
 
-leg_s1: -15
-leg_s2: -10
-leg_s3: -12
-leg_s4: -40
+leg_s1: -20
+leg_s2: -8
+leg_s3: -10
+leg_s4: -35

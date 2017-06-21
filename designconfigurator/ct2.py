@@ -126,57 +126,63 @@ def lower_tabletop(d, dressup=True):
         a = a + 90
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 300)
+        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 150)
 
     m.translate(Base.Vector(0, 0, -d["tabletop_t"]))
     return m
 
 def leg(d, dressup=True):
+    s1 = d["leg_s1"]
+    s2 = d["leg_s2"]
+    s3 = d["leg_s3"]
+    s4 = d["leg_s4"]
+    s5 = d["leg_s5"]
+
     x0 = d["insertion_width_1"]
-    x2 = 150
-    x1 = (x0 + x2) / 2.0 - 30
-    x4 = d["cx"] - d["insertion_width_3"] / 2.0
-    x3 = (x2 + x4) / 2.0 + 10
-    x5 = x4 + d["insertion_width_2"]
-    x7 = d["cx"] + d["insertion_width_3"] / 2.0
-    x6 = (x5 + x7) / 2.0 - 10
-    x8 = d["cx"] - d["insertion_width_3"] / 2.0
-    x9 = x8 - 30
-    x11 = 100
-    x10 = (x9 + x11) / 2.0 - 5
-    x12 = x11 - 50
-    x13 = x12 + 12
+    x1 = 150
+    x2 = d["cx"] - d["insertion_width_3"] / 2.0
+    x3 = x2 + d["insertion_width_2"]
+    x4 = d["cx"] + d["insertion_width_3"] / 2.0
+    x5 = x2 - 30
+    x6 = 100
+    x7 = x6 - 50
 
-    y0 = d["height"]
+    y0 = d["height"] - d["tabletop_t"] + d["insertion_length"]
     y1 = d["height"] - d["tabletop_t"]
-    y4 = d["height"] - d["tabletop_t"] + d["insertion_length"]
+    y2 = y0 - 50
     y3 = d["height_1"] + 120
-    y2 = (y1 + y3) / 2.0
-    y6 = d["height_1"] - d["insertion_length"]
-    y5 = (y4 + y6) / 2.0
-    y7 = y6 + 25
-    y8 = y7 / 2.0
-    y9 = y0 - 50
+    y4 = d["height_1"] - d["insertion_length"]
+    y5 = y4 + 25
 
-    p = [
-        Base.Vector(  0, y4, 0),
-        Base.Vector( x0, y4, 0),
-        Base.Vector( x0, y1, 0),
-        Base.Vector( x1, y2, 0),
-        Base.Vector( x2, y3, 0),
-        Base.Vector( x3, y2, 0),
-        Base.Vector( x4, y4, 0),
-        Base.Vector( x5, y4, 0),
-        Base.Vector( x6, y5, 0),
-        Base.Vector( x7, y6, 0),
-        Base.Vector( x8, y6, 0),
-        Base.Vector( x8, y7, 0),
-        Base.Vector( x9, y7, 0),
-        Base.Vector(x10, y8, 0),
-        Base.Vector(x11,  0, 0),
-        Base.Vector(x12,  0, 0),
-        Base.Vector(x13, y8, 0),
-        Base.Vector(  0, y9, 0)]
+    p = [None] * 21
+
+    p[0] = Base.Vector(  0,  y0, 0)
+    p[1] = Base.Vector( x0,  y0, 0)
+    p[2] = Base.Vector( x0,  y1, 0)
+
+    p[4] = Base.Vector( x1,  y3, 0)
+
+    p[6] = Base.Vector( x2,  y1, 0)
+    p[7] = Base.Vector( x2,  y0, 0)
+    p[8] = Base.Vector( x3,  y0, 0)
+    p[9] = Base.Vector( x3,  y1, 0)
+
+    p[11] = Base.Vector( x4,  y5, 0)
+    p[12] = Base.Vector( x4,  y4, 0)
+    p[13] = Base.Vector( x2,  y4, 0)
+    p[14] = Base.Vector( x2,  y5, 0)
+    p[15] = Base.Vector( x5,  y5, 0)
+
+    p[17] = Base.Vector( x6,   0, 0)
+    p[18] = Base.Vector( x7,   0, 0)
+
+    p[20] = Base.Vector(  0,  y2, 0)
+
+    p[3] = dc.model.sagpoint(  p[2],  p[4], s1)
+    p[5] = dc.model.sagpoint(  p[4],  p[6], s2)
+    p[10] = dc.model.sagpoint( p[9], p[11], s3)
+    p[16] = dc.model.sagpoint(p[15], p[17], s4)
+    p[19] = dc.model.sagpoint(p[18], p[20], s5)
 
     wire = [
         Part.makeLine(p[0], p[1]),
@@ -184,21 +190,25 @@ def leg(d, dressup=True):
         dc.model.makeArc(p[2:5]),
         dc.model.makeArc(p[4:7]),
         Part.makeLine(p[6], p[7]),
-        dc.model.makeArc(p[7:10]),
-        Part.makeLine(p[9], p[10]),
-        Part.makeLine(p[10], p[11]),
+        Part.makeLine(p[7], p[8]),
+        Part.makeLine(p[8], p[9]),
+        dc.model.makeArc(p[9:12]),
         Part.makeLine(p[11], p[12]),
-        dc.model.makeArc(p[12:15]),
+        Part.makeLine(p[12], p[13]),
+        Part.makeLine(p[13], p[14]),
         Part.makeLine(p[14], p[15]),
-        dc.model.makeArc(p[15:]),
-        Part.makeLine(p[17], p[0])]
+        dc.model.makeArc(p[15:18]),
+        Part.makeLine(p[17], p[18]),
+        dc.model.makeArc(p[18:]),
+        Part.makeLine(p[20], p[0])]
 
     face = Part.Face(Part.Wire(wire))
     m = face.extrude(Base.Vector(0, 0, d["leg_t"]))
+
     m = dc.model.fillet_edge_xy(m, 20, p[4])
-    m = dc.model.fillet_edge_xy(m,  7, p[11])
-    m = dc.model.fillet_edge_xy(m, 12, p[12])
-    m = dc.model.fillet_edge_xy(m, 150, p[17])
+    m = dc.model.fillet_edge_xy(m,  7, p[14])
+    m = dc.model.fillet_edge_xy(m, 12, p[15])
+    m = dc.model.fillet_edge_xy(m, 180, p[20])
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
     m.translate(Base.Vector(0, d["leg_t"] / 2.0, 0))
 
@@ -206,7 +216,7 @@ def leg(d, dressup=True):
     m = m.cut(hole)
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, d["leg_edge_radii"], 100)
+        m = dc.model.fillet_edges_longer_than(m, d["leg_edge_radii"], 120)
 
     return m
 
