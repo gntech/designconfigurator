@@ -1,3 +1,4 @@
+import math
 import sys
 sys.path.append("/usr/lib/freecad-daily/lib") # change this by your own FreeCAD lib path import FreeCAD
 
@@ -19,6 +20,16 @@ def sagpoint(p1, p2, sag):
         p.x, p.y = p.y, -p.x # Rotate sag -90 deg
 
     return p1.add(pm).add(p)
+
+def sagpoint_by_r(p1, p2, r):
+    l = p2.sub(p1).Length / 2.0
+    print l
+    s = abs(r) - math.sqrt(r**2 - l**2)
+    print s
+    if r > 0:
+        return sagpoint(p1, p2, s)
+    else:
+        return sagpoint(p1, p2, -s)
 
 def makeArc(p):
     arc = Part.Arc(p[0], p[1], p[2])

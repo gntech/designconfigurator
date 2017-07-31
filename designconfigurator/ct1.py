@@ -20,13 +20,13 @@ def glasstop(d, dressup=True):
     return m
 
 def tabletop(d, dressup=True):
-    r3 =  d["tabletop_r3"]
+    r3 = 60# d["tabletop_r3"]
     s1 = d["tabletop_s1"]
-    s2 = d["tabletop_s2"]
+    s2 = -100#d["tabletop_s2"]
     s3 = d["tabletop_s3"]
-    x2 = (d["length"] - 140) / 2.0
+    x2 = (d["length"] - 160) / 2.0
     x1 = x2 - r3
-    y1 = (d["width"] - 140) / 2.0
+    y1 = (d["width"] - 160) / 2.0
     y2 = y1 - r3
 
     p = [None] * 17
@@ -41,14 +41,14 @@ def tabletop(d, dressup=True):
     p[14] = Base.Vector(-x2,  y2, 0)
     p[16] = Base.Vector(-x1,  y1, 0)
 
-    p[1] = dc.model.sagpoint(p[0], p[2], s1)
-    p[3] = dc.model.sagpoint(p[2], p[4], s2)
+    p[1] = dc.model.sagpoint_by_r(p[0], p[2], -2500)
+    p[3] = dc.model.sagpoint_by_r(p[2], p[4], s2)
     p[5] = dc.model.sagpoint(p[4], p[6], s3)
-    p[7] = dc.model.sagpoint(p[6], p[8], s2)
-    p[9] = dc.model.sagpoint(p[8], p[10], s1)
-    p[11] = dc.model.sagpoint(p[10], p[12], s2)
+    p[7] = dc.model.sagpoint_by_r(p[6], p[8], s2)
+    p[9] = dc.model.sagpoint_by_r(p[8], p[10], -2500)
+    p[11] = dc.model.sagpoint_by_r(p[10], p[12], s2)
     p[13] = dc.model.sagpoint(p[12], p[14], s3)
-    p[15] = dc.model.sagpoint(p[14], p[0], s2)
+    p[15] = dc.model.sagpoint_by_r(p[14], p[0], s2)
 
     face = Part.Face(Part.Wire(dc.model.create_arcs(p)))
     m = face.extrude(Base.Vector(0, 0, d["tabletop_t"]))
@@ -245,6 +245,7 @@ def build_all(user_parameters):
     glasstop_drw(d)
     tabletop_drw(d)
     leg_drw(d)
+    dc.common.writeinfo(d)
 
 if __name__ == "__main__":
     print("This file should not be run directly.")

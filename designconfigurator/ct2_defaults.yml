@@ -9,16 +9,19 @@ width: 700
 height: 500
 height_1: 220
 
-insertion_width_1: 45
+insertion_width_1: 50
 insertion_width_2: 80
 insertion_width_3: 50
-insertion_length: 5
+insertion_length: 3
 
 hole_dia_tabletop: 9
 hole_dia_leg: 8
 
 tabletop_edge_radii: 4
-tabletop_t: 20
+
+upper_tabletop_t: 20
+lower_tabletop_t: 20
+
 tabletop_r3: 50
 tabletop_s1: -10
 tabletop_s2: 8
@@ -29,7 +32,7 @@ upper_tabletop_s1: -10
 upper_tabletop_s2: 20
 
 leg_t: 42
-leg_distance_from_corner: 35
+leg_distance_from_corner: 40
 leg_edge_radii: 10
 leg_width: 60
 

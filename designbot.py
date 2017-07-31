@@ -6,6 +6,8 @@ import sys
 import designconfigurator as dc
 
 def build_design(user_parameters):
+    assert "design" in user_parameters.keys()
+
     if user_parameters["design"] == "ct1":
         dc.ct1.build_all(user_parameters)
 

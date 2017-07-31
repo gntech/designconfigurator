@@ -10,31 +10,16 @@ from FreeCAD import Base, Part
 
 import designconfigurator as dc
 
-def upper_tabletop(d, dressup=True):
-    x1 = d["length"] / 2.0
-    y1 = d["width"] / 2.0
-    s1 = d["upper_tabletop_s1"]
-    s2 = d["upper_tabletop_s2"]
+def upper_tabletop_2(d, dressup=True):
+    m = Part.makeBox(d["length"], d["width"], d["upper_tabletop_t"])
+    m.translate(Base.Vector(-d["length"]/2, -d["width"]/2, 0))
+    m = dc.model.fillet_edges_by_length(m, 35, d["upper_tabletop_t"])
 
-    p = [None] * 9
+    print("Upper tabletop length: ", d["length"])
+    print("Upper tabletop width: ", d["width"])
 
-    p[0] = Base.Vector(-x1,  y1, 0)
-    p[2] = Base.Vector( x1,  y1, 0)
-    p[4] = Base.Vector( x1, -y1, 0)
-    p[6] = Base.Vector(-x1, -y1, 0)
-    p[8] = Base.Vector(-x1,  y1, 0)
-
-    p[1] = dc.model.sagpoint(p[0], p[2], s1)
-    p[3] = dc.model.sagpoint(p[2], p[4], s2)
-    p[5] = dc.model.sagpoint(p[4], p[6], s1)
-    p[7] = dc.model.sagpoint(p[6], p[8], s2)
-
-    face = Part.Face(Part.Wire(dc.model.create_arcs(p)))
-    m = face.extrude(Base.Vector(0, 0, d["tabletop_t"]))
-    m = dc.model.fillet_edges_by_length(m, d["upper_tabletop_corner_radii"], d["tabletop_t"])
-
-    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
-    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
+    ccx = d["length"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
     hx = ccx / 2.0
     hy = ccy / 2.0
 
@@ -45,7 +30,7 @@ def upper_tabletop(d, dressup=True):
 
     a = 135
     for p in hole_points:
-        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["tabletop_t"], p, Base.Vector(0, 0, 1), 360)
+        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["upper_tabletop_t"], p, Base.Vector(0, 0, 1), 360)
 
         insert_1 = Part.makeBox(d["leg_t"], d["insertion_width_1"], d["insertion_length"])
         insert_1 = dc.model.fillet_edges_by_length(insert_1, d["leg_edge_radii"], d["insertion_length"])
@@ -63,48 +48,24 @@ def upper_tabletop(d, dressup=True):
         a = a + 90
 
     if dressup:
-        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 500)
+        m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 300)
 
-    m.translate(Base.Vector(0, 0, -d["tabletop_t"]))
+    m.translate(Base.Vector(0, 0, -d["upper_tabletop_t"]))
     return m
 
-def lower_tabletop(d, dressup=True):
-    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
-    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
+def lower_tabletop_2(d, dressup=True):
+    ccx = d["length"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
 
-    r3 =  d["tabletop_r3"]
-    s1 = d["tabletop_s1"]
-    s2 = d["tabletop_s2"]
-    s3 = d["tabletop_s3"]
-    x2 = (ccx + 2 * r3) / 2.0
-    x1 = x2 - r3
-    y1 = (ccy + 2 * r3) / 2.0
-    y2 = y1 - r3
+    length = ccx + (2 * d["leg_distance_from_corner"] + d["insertion_width_3"]) / math.sqrt(2.0)
+    width = ccy + (2 * d["leg_distance_from_corner"] + d["insertion_width_3"]) / math.sqrt(2.0)
 
-    p = [None] * 17
+    print("Lower tabletop length: ", length)
+    print("Lower tabletop width: ", width)
 
-    p[0] = Base.Vector(-x1,  y1, 0)
-    p[2] = Base.Vector( x1,  y1, 0)
-    p[4] = Base.Vector( x2,  y2, 0)
-    p[6] = Base.Vector( x2, -y2, 0)
-    p[8] = Base.Vector( x1, -y1, 0)
-    p[10] = Base.Vector(-x1, -y1, 0)
-    p[12] = Base.Vector(-x2, -y2, 0)
-    p[14] = Base.Vector(-x2,  y2, 0)
-    p[16] = Base.Vector(-x1,  y1, 0)
-
-    p[1] = dc.model.sagpoint(p[0], p[2], s1)
-    p[3] = dc.model.sagpoint(p[2], p[4], s2)
-    p[5] = dc.model.sagpoint(p[4], p[6], s3)
-    p[7] = dc.model.sagpoint(p[6], p[8], s2)
-    p[9] = dc.model.sagpoint(p[8], p[10], s1)
-    p[11] = dc.model.sagpoint(p[10], p[12], s2)
-    p[13] = dc.model.sagpoint(p[12], p[14], s3)
-    p[15] = dc.model.sagpoint(p[14], p[0], s2)
-
-    face = Part.Face(Part.Wire(dc.model.create_arcs(p)))
-    m = face.extrude(Base.Vector(0, 0, d["tabletop_t"]))
-    m = dc.model.fillet_edges_by_length(m, 20, d["tabletop_t"])
+    m = Part.makeBox(length, width, d["lower_tabletop_t"])
+    m.translate(Base.Vector(-length / 2.0, -width / 2.0, 0))
+    m = dc.model.fillet_edges_by_length(m, 35, d["lower_tabletop_t"])
 
     hx = ccx / 2.0
     hy = ccy / 2.0
@@ -116,7 +77,7 @@ def lower_tabletop(d, dressup=True):
 
     a = 45
     for p in hole_points:
-        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["tabletop_t"], p, Base.Vector(0, 0, 1), 360)
+        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["lower_tabletop_t"], p, Base.Vector(0, 0, 1), 360)
         insert = Part.makeBox(d["leg_t"], d["insertion_width_3"], d["insertion_length"])
         insert = dc.model.fillet_edges_by_length(insert, d["leg_edge_radii"], d["insertion_length"])
         insert.translate(Base.Vector(-d["leg_t"]/2, -d["insertion_width_3"]/2, 0))
@@ -128,7 +89,7 @@ def lower_tabletop(d, dressup=True):
     if dressup:
         m = dc.model.fillet_edges_longer_than(m, d["tabletop_edge_radii"], 150)
 
-    m.translate(Base.Vector(0, 0, -d["tabletop_t"]))
+    m.translate(Base.Vector(0, 0, -d["lower_tabletop_t"]))
     return m
 
 def leg(d, dressup=True):
@@ -147,12 +108,15 @@ def leg(d, dressup=True):
     x6 = 100
     x7 = x6 - 50
 
-    y0 = d["height"] - d["tabletop_t"] + d["insertion_length"]
-    y1 = d["height"] - d["tabletop_t"]
+    y0 = d["height"] - d["upper_tabletop_t"] + d["insertion_length"]
+    y1 = d["height"] - d["upper_tabletop_t"] - 5
     y2 = y0 - 50
     y3 = d["height_1"] + 120
     y4 = d["height_1"] - d["insertion_length"]
-    y5 = y4 + 25
+    y5 = y4 + 15
+
+    print("Leg length: ", y0)
+    print("Leg width: ", x3)
 
     p = [None] * 21
 
@@ -205,7 +169,9 @@ def leg(d, dressup=True):
     face = Part.Face(Part.Wire(wire))
     m = face.extrude(Base.Vector(0, 0, d["leg_t"]))
 
+    m = dc.model.fillet_edge_xy(m, 7, p[2])
     m = dc.model.fillet_edge_xy(m, 20, p[4])
+    m = dc.model.fillet_edge_xy(m,  7, p[9])
     m = dc.model.fillet_edge_xy(m,  7, p[14])
     m = dc.model.fillet_edge_xy(m, 12, p[15])
     m = dc.model.fillet_edge_xy(m, 180, p[20])
@@ -221,20 +187,20 @@ def leg(d, dressup=True):
     return m
 
 def coffetable_assy(d):
-    ccx = d["length"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
-    ccy = d["width"] - 2 * math.sqrt((d["cx"]**2) / 2.0) - 2 * d["leg_distance_from_corner"]
+    ccx = d["length"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
+    ccy = d["width"] - 2 * math.sqrt(((d["cx"] + d["leg_distance_from_corner"])**2) / 2.0)
 
     x = ccx / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
     y = ccy / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
 
     # The upper oak tabletop
-    tt1 = upper_tabletop(d)
+    tt1 = upper_tabletop_2(d)
     tt1.translate(Base.Vector(0, 0, d["height"]))
 
     # The lower oak tabletop
-    tt2 = lower_tabletop(d)
+    tt2 = lower_tabletop_2(d)
     tt2.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
-    tt2.translate(Base.Vector(0, 0, d["height_1"] - d["tabletop_t"]))
+    tt2.translate(Base.Vector(0, 0, d["height_1"] - d["lower_tabletop_t"]))
 
     # The first leg
     leg1 = leg(d)
@@ -268,7 +234,7 @@ def coffetable_assy(d):
 
 def upper_tabletop_drw(d):
     # The oak tabletop
-    tt1 = upper_tabletop(d, dressup=False)
+    tt1 = upper_tabletop_2(d, dressup=False)
     tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "upper_tabletop")
@@ -279,7 +245,7 @@ def upper_tabletop_drw(d):
 
 def lower_tabletop_drw(d):
     # The oak tabletop
-    tt1 = lower_tabletop(d, dressup=False)
+    tt1 = lower_tabletop_2(d, dressup=False)
     tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "lower_tabletop")

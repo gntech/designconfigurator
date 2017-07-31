@@ -35,3 +35,6 @@ def add_drawing_page(doc):
     doc.Template.Template = '/usr/share/freecad-daily/Mod/TechDraw/Templates/A3_Landscape_ISO7200TD.svg'
     doc.myPage.Template = doc.Template
     return page
+
+def writeinfo(d):
+    pass
