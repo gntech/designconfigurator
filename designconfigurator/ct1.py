@@ -24,9 +24,9 @@ def tabletop(d, dressup=True):
     s1 = d["tabletop_s1"]
     s2 = -100#d["tabletop_s2"]
     s3 = d["tabletop_s3"]
-    x2 = (d["length"] - 160) / 2.0
+    x2 = (d["length"] - 150) / 2.0
     x1 = x2 - r3
-    y1 = (d["width"] - 160) / 2.0
+    y1 = (d["width"] - 150) / 2.0
     y2 = y1 - r3
 
     p = [None] * 17
@@ -80,7 +80,7 @@ def tabletop(d, dressup=True):
     return m
 
 def leg(d, dressup=True):
-    corner_protection = 12
+    corner_protection = 14
     s1 = d["leg_s1"]
     s2 = d["leg_s2"]
     s3 = d["leg_s3"]
@@ -159,9 +159,9 @@ def leg(d, dressup=True):
 
     hole = Part.makeCylinder(d["hole_dia_leg"] / 2.0, d["height"], Base.Vector(d["cx"], 0, 0), Base.Vector(0, 0, 1), 360)
     m = m.cut(hole)
-    corner_cutout = Part.makeBox(2*d["leg_t"], 2*d["leg_t"], d["glass_t"])
+    corner_cutout = Part.makeBox(4*d["leg_t"], 4*d["leg_t"], d["glass_t"])
     corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45)
-    corner_cutout.translate(Base.Vector(0, 0, d["height"] - d["glass_t"]))
+    corner_cutout.translate(Base.Vector(-1, 0, d["height"] - d["glass_t"]))
     m = m.cut(corner_cutout)
 
     if dressup:
