@@ -57,6 +57,10 @@ def tabletop(d, dressup=True):
     hx = d["length"] / 2.0 - math.sqrt((d["cx"]**2) / 2.0)
     hy = d["width"] / 2.0 - math.sqrt((d["cx"]**2) / 2.0)
 
+    print("Holes: x distance", hx*2)
+    print("Holes: y distance", hy*2)
+    print("Holes: diagonal distance", math.sqrt((hx*2)**2 + (hy*2)**2))
+
     hole_points = [ Base.Vector( hx,  hy, 0),
                     Base.Vector(-hx,  hy, 0),
                     Base.Vector(-hx, -hy, 0),
@@ -64,10 +68,10 @@ def tabletop(d, dressup=True):
 
     a = 45
     for p in hole_points:
-        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["tabletop_t"], p, Base.Vector(0, 0, 1), 360)
+        hole = Part.makeCylinder(d["hole_dia_tabletop"] / 2.0, d["tabletop_t"], p, Base.Vector(0, 0, 1), 360)
         insert = Part.makeBox(d["leg_t"], d["insertion_width"], d["insertion_length"])
         insert = dc.model.fillet_edges_by_length(insert, 5, d["insertion_length"])
-        insert.translate(Base.Vector(-d["leg_t"]/2, -d["insertion_width"]/2, 0))
+        insert.translate(Base.Vector(-d["leg_t"] / 2.0, -d["insertion_width"] / 2.0, 0))
         insert.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -a)
         insert.translate(p)
         m = m.cut(hole).cut(insert)
@@ -86,12 +90,12 @@ def leg(d, dressup=True):
     s3 = d["leg_s3"]
     s4 = d["leg_s4"]
 
-    x0 = d["cx"] + d["insertion_width"]/2 + corner_protection
-    x1 = d["cx"] - d["insertion_width"]/2 + corner_protection
+    x0 = d["cx"] + d["insertion_width"]/2.0 + corner_protection
+    x1 = d["cx"] - d["insertion_width"]/2.0 + corner_protection
     x2 = x1 - 25
-    x3 = 115
+    x3 = 100
     x4 = 80
-    x5 = 60
+    x5 = x3 - 55
 
     y0 = d["height"]
     y2 = d["height_1"] - d["tabletop_t"] + d["insertion_length"]
@@ -155,13 +159,13 @@ def leg(d, dressup=True):
     m = dc.model.fillet_edge_xy(m, 20, p[13])
 
     m.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 90)
-    m.translate(Base.Vector(-corner_protection, d["leg_t"]/2, 0))
+    m.translate(Base.Vector(-corner_protection, d["leg_t"] / 2.0, 0))
 
     hole = Part.makeCylinder(d["hole_dia_leg"] / 2.0, d["height"], Base.Vector(d["cx"], 0, 0), Base.Vector(0, 0, 1), 360)
     m = m.cut(hole)
-    corner_cutout = Part.makeBox(4*d["leg_t"], 4*d["leg_t"], d["glass_t"])
-    corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45)
-    corner_cutout.translate(Base.Vector(-1, 0, d["height"] - d["glass_t"]))
+    corner_cutout = Part.makeBox(4.0*d["leg_t"], 4.0*d["leg_t"], d["glass_t"] + 2.0)
+    corner_cutout.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), -45.0)
+    corner_cutout.translate(Base.Vector(-2, 0, d["height"] - d["glass_t"] - 2.0))
     m = m.cut(corner_cutout)
 
     if dressup:
@@ -186,22 +190,22 @@ def coffetable_assy(d):
     # The first leg
     leg1 = leg(d)
     leg1.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 225)
-    leg1.translate(Base.Vector( d["length"] / 2, d["width"] / 2, 0))
+    leg1.translate(Base.Vector( d["length"] / 2.0, d["width"] / 2.0, 0))
 
     # The second leg
     leg2 = leg(d)
     leg2.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 315)
-    leg2.translate(Base.Vector(-d["length"] / 2, d["width"] / 2, 0))
+    leg2.translate(Base.Vector(-d["length"] / 2.0, d["width"] / 2.0, 0))
 
     # The third leg
     leg3 = leg(d)
     leg3.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 45)
-    leg3.translate(Base.Vector(-d["length"] / 2, -d["width"] / 2, 0))
+    leg3.translate(Base.Vector(-d["length"] / 2.0, -d["width"] / 2.0, 0))
 
     # The fourth leg
     leg4 = leg(d)
     leg4.rotate(Base.Vector(0,0,0), Base.Vector(0,0,1), 135)
-    leg4.translate(Base.Vector( d["length"] / 2, -d["width"] / 2, 0))
+    leg4.translate(Base.Vector( d["length"] / 2.0, -d["width"] / 2.0, 0))
 
     doc = dc.common.create_doc()
     dc.common.add_model(doc, gt1, "glassTop")
@@ -226,23 +230,23 @@ def tabletop_drw(d):
     tt1 = tabletop(d, dressup=False)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "tableTop")
-    p = dc.common.add_drawing_page(doc)
-    dc.drawing.create_drawing(doc, p, m, d["tabletop"])
+    #p = dc.common.add_drawing_page(doc)
+    #dc.drawing.create_drawing(doc, p, m, d["tabletop"])
     doc.saveAs(dc.common.fn(d, "tabletop") + ".fcstd")
 
 def leg_drw(d):
     leg1 = leg(d, dressup=False)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, leg1, "leg")
-    p = dc.common.add_drawing_page(doc)
-    dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
+    #p = dc.common.add_drawing_page(doc)
+    #dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
 def build_all(user_parameters):
     d = dc.common.load_parameters(os.path.join(os.path.dirname(__file__), "ct1_defaults.yml"))
     d.update(user_parameters)
     coffetable_assy(d)
-    glasstop_drw(d)
+    #glasstop_drw(d)
     tabletop_drw(d)
     leg_drw(d)
     dc.common.writeinfo(d)

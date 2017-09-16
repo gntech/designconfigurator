@@ -13,10 +13,13 @@ def load_parameters(fn):
     return d
 
 def fn(d, part=""):
-    fnparts = [d[part]["nr"],
-                d[part]["rev"],
-                d["project"].replace(" ", "-"),
-                d[part]["name"]]
+    #fnparts = [d[part]["nr"],
+    #            d[part]["rev"],
+    #            d[part]["name"],
+
+    fnparts = [d["project"].replace(" ", "-"),
+                part,
+                datetime.datetime.now().strftime("%Y-%m-%d")]
 
     return os.path.join(d["outfolder"], "_".join(fnparts))
 
