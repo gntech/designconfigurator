@@ -54,7 +54,7 @@ def upper_tabletop_2(d, dressup=True):
     return m
 
 def upper_tabletop_3(d, dressup=True):
-    s = 45
+    s = 35
     x1 = d["length"] / 2.0
     y1 = d["width"] / 2.0
     x2 = x1 - 25
@@ -108,7 +108,7 @@ def upper_tabletop_3(d, dressup=True):
 
     a = 135
     for p in hole_points:
-        hole = Part.makeCylinder(d["hole_dia_tabletop"]/2.0, d["upper_tabletop_t"], p, Base.Vector(0, 0, 1), 360)
+        hole = Part.makeCylinder(d["hole_dia_tabletop"] / 2.0, d["upper_tabletop_t"] / 2.0, p, Base.Vector(0, 0, 1), 360)
 
         insert_1 = Part.makeBox(d["leg_t"], d["insertion_width_1"], d["insertion_length"])
         insert_1 = dc.model.fillet_edges_by_length(insert_1, d["leg_edge_radii"], d["insertion_length"])
@@ -346,17 +346,17 @@ def coffetable_assy(d):
     y = ccy / 2.0 + math.sqrt((d["cx"]**2) / 2.0)
 
     # The upper oak tabletop
-    tt1 = upper_tabletop_2(d)
-    tt1.translate(Base.Vector(0, 0, d["height"]))
+    #tt1 = upper_tabletop_2(d)
+    #tt1.translate(Base.Vector(0, 0, d["height"]))
 
     # The upper oak tabletop 2nd version
     tt4 = upper_tabletop_3(d)
     tt4.translate(Base.Vector(0, 0, d["height"]))
 
     # The lower oak tabletop
-    tt2 = lower_tabletop_2(d)
-    tt2.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
-    tt2.translate(Base.Vector(0, 0, d["height_1"] - d["lower_tabletop_t"]))
+    #tt2 = lower_tabletop_2(d)
+    #tt2.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
+    #tt2.translate(Base.Vector(0, 0, d["height_1"] - d["lower_tabletop_t"]))
 
     # The lower oak tabletop 2nd version
     tt3 = lower_tabletop_3(d)
@@ -384,9 +384,9 @@ def coffetable_assy(d):
     leg4.translate(Base.Vector( x, -y, 0))
 
     doc = dc.common.create_doc()
-    dc.common.add_model(doc, tt1, "upper_tabletop")
+    #dc.common.add_model(doc, tt1, "upper_tabletop")
     dc.common.add_model(doc, tt4, "upper_tabletop_3")
-    dc.common.add_model(doc, tt2, "lower_tabletop")
+    #dc.common.add_model(doc, tt2, "lower_tabletop")
     dc.common.add_model(doc, tt3, "lower_tabletop_3")
     dc.common.add_model(doc, leg1, "leg1")
     dc.common.add_model(doc, leg2, "leg2")
@@ -397,33 +397,33 @@ def coffetable_assy(d):
 
 def upper_tabletop_drw(d):
     # The oak tabletop
-    tt1 = upper_tabletop_2(d, dressup=False)
+    tt1 = upper_tabletop_3(d, dressup=False)
     tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "upper_tabletop")
-    p = dc.common.add_drawing_page(doc)
-    dc.drawing.create_drawing(doc, p, m, d["upper_tabletop"])
-    dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
+    #p = dc.common.add_drawing_page(doc)
+    #dc.drawing.create_drawing(doc, p, m, d["upper_tabletop"])
+    #dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
     doc.saveAs(dc.common.fn(d, "upper_tabletop") + ".fcstd")
 
 def lower_tabletop_drw(d):
     # The oak tabletop
-    tt1 = lower_tabletop_2(d, dressup=False)
+    tt1 = lower_tabletop_3(d, dressup=False)
     tt1.rotate(Base.Vector(0,0,0), Base.Vector(1,0,0), 180)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, tt1, "lower_tabletop")
-    p = dc.common.add_drawing_page(doc)
-    dc.drawing.create_drawing(doc, p, m, d["lower_tabletop"])
-    dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
+    #p = dc.common.add_drawing_page(doc)
+    #dc.drawing.create_drawing(doc, p, m, d["lower_tabletop"])
+    #dc.drawing.add_info(p, "SI-2", "Mill pockets to depth: " + str(d["insertion_length"]) + " mm")
     doc.saveAs(dc.common.fn(d, "lower_tabletop") + ".fcstd")
 
 def leg_drw(d):
     leg1 = leg(d, dressup=False)
     doc = dc.common.create_doc()
     m = dc.common.add_model(doc, leg1, "leg")
-    p = dc.common.add_drawing_page(doc)
-    dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
-    dc.common.add_model(doc, leg1, "leg")
+    #p = dc.common.add_drawing_page(doc)
+    #dc.drawing.create_drawing(doc, p, m, d["leg"], viewplane="xz")
+    #dc.common.add_model(doc, leg1, "leg")
     doc.saveAs(dc.common.fn(d, "leg") + ".fcstd")
 
 def build_all(user_parameters):

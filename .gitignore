@@ -2,3 +2,5 @@
 *.fcstd*
 *.stp
 *.step
+.vscode/
+

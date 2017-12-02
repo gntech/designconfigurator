@@ -24,9 +24,9 @@ def tabletop(d, dressup=True):
     s1 = d["tabletop_s1"]
     s2 = -100#d["tabletop_s2"]
     s3 = d["tabletop_s3"]
-    x2 = (d["length"] - 150) / 2.0
+    x2 = (d["length"] - 120) / 2.0
     x1 = x2 - r3
-    y1 = (d["width"] - 150) / 2.0
+    y1 = (d["width"] - 120) / 2.0
     y2 = y1 - r3
 
     p = [None] * 17
